@@ -1,0 +1,28 @@
+I reviewed AWESOME_DEMO_v1.02.py and evil.py. The main vulnerability is that the SCADA simulator's TCP control handler accepts equipment-control commands without authentication.
+The testing script specifically checks malformed commands, missing or invalid actions, extra arguments, and whether an unauthenticated client can send GEN ON.
+
+I've prepared a modified version that preserves the existing GUI, alarm logic, SQLite telemetry logging, and equipment controls while adding protections to the TCP interface.
+Security changes
+Attack or weakness in evil.py	Protection added
+Unauthenticated GEN ON -	Requires a secret token before accepting controls
+Unauthenticated BRK commands - Requires authentication on each new connection
+Unknown commands such as BOGUS TEST	- Rejects commands outside the allowlist
+Missing or invalid actions	Validates - command structure and permitted actions
+Extra arguments such as GEN ON EXTRA - Requires exactly two command fields
+Oversized input	 - Rejects commands exceeding 128 bytes
+Client holding a connection open	- Five-second socket timeout
+One slow client blocking other clients -	Handles connections in separate threads
+Network exposure on every interface	Defaults to listening on localhost only
+Missing security configuration	Disables the TCP listener unless a token is configured
+
+The modified Python file has also passed a syntax compilation check.
+
+using the following command you can set up a password to be able to control remotely;
+without this, all tcp injects will fail.
+$env:SCADA_CONTROL_TOKEN = "replace-with-a-long-random-secret"
+
+the tcp attack must now send an authentication line containing the password to be able to access remotely
+AUTH your-configured-secret
+GEN ON
+BRK OFF
+The server accepts only GEN or BRK followed by ON, OFF, or TOGGLE, with no extra arguments. The example above is a protocol illustration, not a command to execute against a live system.
