@@ -26,3 +26,5 @@ AUTH your-configured-secret
 GEN ON
 BRK OFF
 The server accepts only GEN or BRK followed by ON, OFF, or TOGGLE, with no extra arguments. The example above is a protocol illustration, not a command to execute against a live system.
+
+next step will be to add a log in the outstation simulation to record when an attempt is made to remotely access and change a state of the simualtor.
